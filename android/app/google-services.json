@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "447897092082",
+    "project_id": "collegekart-7154d",
+    "storage_bucket": "collegekart-7154d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:447897092082:android:34d4c0eb02d86d4bfdf56b",
+        "android_client_info": {
+          "package_name": "com.collegekart"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCS83b-AGNk8nA0PxNLdyeCAA9vltlVBLk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
