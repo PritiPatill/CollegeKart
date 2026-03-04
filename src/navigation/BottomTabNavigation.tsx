@@ -1,10 +1,10 @@
-import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import HomeScreen from '../modules/home/Home';
-import SearchScreen from '../modules/search/Search';
-import AboutScreen from '../modules/about/About';
-import { COLORS } from '../theme/Colors';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import React from "react";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import HomeScreen from "../modules/home/pages/home-screen/Home";
+import SearchScreen from "../modules/search/Search";
+import AboutScreen from "../modules/about/About";
+import { COLORS } from "../theme/Colors";
+import Ionicons from "react-native-vector-icons/Ionicons";
 const Tab = createBottomTabNavigator();
 
 export default function BottomTabs() {
@@ -21,14 +21,14 @@ export default function BottomTabs() {
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
 
-          if (route.name === 'Home') {
-            iconName = focused ? 'home' : 'home-outline';
-          } else if (route.name === 'Search') {
-            iconName = focused ? 'search' : 'search-outline';
-          } else if (route.name === 'About') {
+          if (route.name === "Home") {
+            iconName = focused ? "home" : "home-outline";
+          } else if (route.name === "Search") {
+            iconName = focused ? "search" : "search-outline";
+          } else if (route.name === "About") {
             iconName = focused
-              ? 'information-circle'
-              : 'information-circle-outline';
+              ? "information-circle"
+              : "information-circle-outline";
           }
 
           return <Ionicons name={iconName} size={22} color={color} />;
