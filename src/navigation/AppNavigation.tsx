@@ -8,6 +8,7 @@ import BottomTabs from "./BottomTabNavigation";
 import { COLORS } from "../theme/Colors";
 import DrawerNavigation from "./DrawerNavigation";
 import DetailScreen from "../modules/home/pages/detail-screen/DetailScreen";
+import CourseFacilityDetails from "../modules/home/pages/course-facility-detail/CourseFacilityDetails";
 
 const Stack = createNativeStackNavigator();
 
@@ -42,6 +43,20 @@ export default function AppNavigation() {
             headerStyle: { backgroundColor: COLORS.primary },
             headerTintColor: COLORS.white,
           }}
+        />
+        <Stack.Screen
+          name="CourseFacilityDetail"
+          component={CourseFacilityDetails}
+          options={({ route }) => ({
+            title: route.params.title,
+            headerStyle: { backgroundColor: COLORS.primary },
+            headerTintColor: COLORS.white,
+          })}
+          // options={{
+          //   title: route.params.title,
+          //   headerStyle: { backgroundColor: COLORS.primary },
+          //   headerTintColor: COLORS.white,
+          // }}
         />
         <Stack.Screen
           name="Dashboard"

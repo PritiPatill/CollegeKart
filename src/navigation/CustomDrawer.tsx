@@ -34,19 +34,14 @@ export default function CustomDrawer({ navigation }) {
           onPress={() => navigation.navigate("HomeTabs")}
         />
 
-        <MenuItem
+        {/* <MenuItem
           title="👤 Profile"
           onPress={() => navigation.navigate("Profile")}
-        />
+        /> */}
 
         <MenuItem
           title="❤️ Saved Colleges"
-          onPress={() => navigation.navigate("Saved")}
-        />
-
-        <MenuItem
-          title="⚙️ Settings"
-          onPress={() => navigation.navigate("Settings")}
+          onPress={() => navigation.navigate("SavedColleges")}
         />
 
         <MenuItem title="🚪 Logout" onPress={handleLogout} />

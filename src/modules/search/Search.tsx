@@ -1,5 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,37 +10,30 @@ import {
   Image,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import { searchColleges } from "../../db-query/dbQuery";
 
-const colleges = [
-  {
-    id: "1",
-    name: "ABC Institute of Technology",
-    location: "Pune",
-    course: "Engineering",
-    placement: "6 LPA",
-    fees: "1.2L/year",
-    image: "https://images.unsplash.com/photo-1562774053-701939374585",
-  },
-  {
-    id: "2",
-    name: "XYZ Business School",
-    location: "Mumbai",
-    course: "MBA",
-    placement: "8 LPA",
-    fees: "2.5L/year",
-    image: "https://images.unsplash.com/photo-1577896851231-70ef18881754",
-  },
-];
-
-const SearchScreen = () => {
+const SearchScreen = ({ route }) => {
+  const { course } = route?.params ?? "";
   const [query, setQuery] = useState("");
-
-  const filtered = colleges.filter((item) =>
-    item.name.toLowerCase().includes(query.toLowerCase()),
-  );
+  const [results, setResults] = useState([]);
 
   const navigation = useNavigation();
 
+  useEffect(() => {
+    handleSearch(course);
+  }, [course]);
+
+  const handleSearch = async (text) => {
+    setQuery(text);
+
+    if (text.length > 1) {
+      const data = await searchColleges(text);
+      setResults(data);
+    } else {
+      setResults([]);
+    }
+  };
+  console.log("result : ", results);
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Search Colleges</Text>
@@ -52,41 +45,45 @@ const SearchScreen = () => {
           placeholder="Search college, course, location..."
           style={styles.input}
           value={query}
-          onChangeText={setQuery}
+          onChangeText={handleSearch}
         />
       </View>
 
       {/* Filter Chips */}
       <View style={styles.filters}>
         {["Engineering", "MBA", "Medical"].map((item, index) => (
-          <TouchableOpacity key={index} style={styles.chip}>
+          <TouchableOpacity
+            key={index}
+            style={styles.chip}
+            onPress={() => handleSearch(item)}
+          >
             <Text style={styles.chipText}>{item}</Text>
           </TouchableOpacity>
         ))}
       </View>
 
       {/* Result Count */}
-      <Text style={styles.resultText}>{filtered.length} Results Found</Text>
+      <Text style={styles.resultText}>{results?.length} Results Found</Text>
 
       {/* Results */}
       <FlatList
-        data={filtered}
+        data={results}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.card}
-            onPress={() => navigation.navigate("CollegeDetail")}
+            onPress={() => navigation.navigate("CollegeDetail", { data: item })}
           >
-            <Image source={{ uri: item.image }} style={styles.image} />
+            <Image source={{ uri: item.imageUrl }} style={styles.image} />
             <View style={styles.cardContent}>
               <Text style={styles.name}>{item.name}</Text>
               <Text style={styles.sub}>
-                {item.location} • {item.course}
+                {item.city} • {item.category}
               </Text>
               <Text style={styles.info}>
-                🎓 Avg Placement: ₹{item.placement}
+                🎓 Avg Placement: ₹{item.averagePackage}
               </Text>
-              <Text style={styles.info}>💰 Fees: ₹{item.fees}</Text>
+              {/* <Text style={styles.info}>💰 Fees: ₹{item.fees}</Text> */}
             </View>
           </TouchableOpacity>
         )}

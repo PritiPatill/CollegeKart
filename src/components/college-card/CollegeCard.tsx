@@ -3,27 +3,34 @@ import { Image, Text, TouchableOpacity, View } from "react-native";
 import { styles } from "./CollegeCardStyle";
 import { useNavigation } from "@react-navigation/native";
 
-const CollegeCard = () => {
+const CollegeCard = ({ data, handleViewDetails }) => {
   const navigation = useNavigation();
   return (
     <View style={styles.collegeCard}>
       <Image
         source={{
-          uri: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914",
+          uri: data?.imageUrl,
         }}
         style={styles.collegeImage}
       />
 
-      <Text style={styles.collegeName}>ABC Institute of Technology</Text>
-      <Text style={styles.collegeMeta}>Pune • Engineering</Text>
+      <Text style={styles.collegeName}>{data?.name}</Text>
+      <Text style={styles.collegeMeta}>
+        {data?.city} • {data?.category}
+      </Text>
 
-      <Text style={styles.collegePlacement}>🎓 Avg Placement: ₹6 LPA</Text>
+      <Text style={styles.collegePlacement}>
+        🎓 Avg Placement: {data?.averagePackage}
+      </Text>
 
-      <Text style={styles.collegeFee}>💰 Fees: ₹1.2L / year</Text>
+      {/* <Text style={styles.collegeFee}>💰 Fees: ₹1.2L / year</Text> */}
 
       <TouchableOpacity
         style={styles.viewBtn}
-        onPress={() => navigation.navigate("CollegeDetail")}
+        onPress={() => {
+          handleViewDetails && handleViewDetails(data);
+          navigation.navigate("CollegeDetail", { data: data });
+        }}
       >
         <Text style={styles.viewBtnText}>View Details →</Text>
       </TouchableOpacity>

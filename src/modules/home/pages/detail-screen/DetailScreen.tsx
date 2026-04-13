@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,53 +6,133 @@ import {
   Image,
   ScrollView,
   TouchableOpacity,
+  Linking,
 } from "react-native";
+import {
+  getSavedColleges,
+  saveCollege,
+  removeCollege,
+  isCollegeSaved,
+} from "../../../../utils/storage";
 
-const DetailScreen = () => {
+const DetailScreen = ({ route, navigation }) => {
+  const { data } = route.params;
+  console.log("data : ", data);
+
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    const checkSaved = async () => {
+      const result = await isCollegeSaved(data.id);
+      setSaved(result);
+    };
+
+    checkSaved();
+  }, []);
+
+  const handleSave = async () => {
+    if (saved) {
+      await removeCollege(data.id);
+      setSaved(false);
+    } else {
+      await saveCollege(data);
+      setSaved(true);
+    }
+  };
+
+  const match =
+    typeof data?.ranking === "string" &&
+    data?.ranking?.match(/(#\d+)\s+in\s+(.+)/);
   return (
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Hero Image */}
         <Image
           source={{
-            uri: "https://images.unsplash.com/photo-1562774053-701939374585",
+            uri: data?.imageUrl,
           }}
           style={styles.heroImage}
         />
 
         {/* Main Info */}
         <View style={styles.content}>
-          <Text style={styles.title}>ABC Institute of Technology</Text>
-          <Text style={styles.location}>Pune • Engineering</Text>
+          <Text style={styles.title}>{data?.name}</Text>
+          <Text style={styles.location}>
+            {data?.city} • {data?.category}
+          </Text>
 
           {/* Stats Row */}
           <View style={styles.statsRow}>
-            <StatBox value="₹6 LPA" label="Avg Placement" />
-            <StatBox value="₹1.2L" label="Fees / Year" />
-            <StatBox value="#12" label="Rank in Pune" />
+            <StatBox value={data?.averagePackage} label="Avg Placement" />
+            <StatBox value={data?.category} label="Category" />
+            {!!match?.length && (
+              <StatBox value={match?.[1]} label={match?.[2]} />
+            )}
           </View>
 
           {/* About Section */}
           <SectionTitle title="About College" />
-          <Text style={styles.paragraph}>
-            ABC Institute of Technology is one of the top engineering colleges
-            in Pune offering undergraduate and postgraduate programs. The
-            institute has strong industry connections and excellent placement
-            records.
-          </Text>
+          <Text style={styles.paragraph}>{data?.about}</Text>
 
           {/* Courses Section */}
           <SectionTitle title="Popular Courses" />
-          <Bullet text="B.Tech Computer Science" />
-          <Bullet text="B.Tech Mechanical Engineering" />
-          <Bullet text="M.Tech Data Science" />
+          {data?.coursesOffered?.map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              onPress={() => {
+                const selectedCourse = data?.coursesInfo?.find(
+                  (c) => c.name === item,
+                );
+
+                if (!selectedCourse) {
+                  alert("Course details not available");
+                  return;
+                }
+
+                navigation.navigate("CourseFacilityDetail", {
+                  title: selectedCourse.name,
+                  data: selectedCourse,
+                  type: "course",
+                });
+              }}
+            >
+              <Bullet text={item} />
+            </TouchableOpacity>
+          ))}
+          {/* {data?.coursesOffered?.map((item, index) => (
+            
+            <Bullet key={index} text={item} />
+          ))} */}
 
           {/* Facilities */}
           <SectionTitle title="Facilities" />
-          <Bullet text="Modern Labs" />
-          <Bullet text="Hostel & Mess" />
-          <Bullet text="Sports Complex" />
-          <Bullet text="Library & Digital Resources" />
+          {/* {data?.facilities?.map((item, index) => (
+            <Bullet key={index} text={item} />
+          ))} */}
+
+          {data?.facilities?.map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              onPress={() => {
+                const selectedFacility = data?.facilitiesInfo?.find(
+                  (f) => f.name === item,
+                );
+
+                if (!selectedFacility) {
+                  alert("Facility details not available");
+                  return;
+                }
+
+                navigation.navigate("CourseFacilityDetail", {
+                  title: selectedFacility.name,
+                  data: selectedFacility,
+                  type: "facility",
+                });
+              }}
+            >
+              <Bullet text={item} />
+            </TouchableOpacity>
+          ))}
 
           <View style={{ height: 100 }} />
         </View>
@@ -60,11 +140,14 @@ const DetailScreen = () => {
 
       {/* Bottom CTA */}
       <View style={styles.bottomBar}>
-        <TouchableOpacity style={styles.saveButton}>
-          <Text style={styles.saveText}>☆ Save</Text>
+        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+          <Text style={styles.saveText}>{saved ? "★ Saved" : "☆ Save"}</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.applyButton}>
+        <TouchableOpacity
+          style={styles.applyButton}
+          onPress={() => Linking.openURL(data?.website)}
+        >
           <Text style={styles.applyText}>Apply Now</Text>
         </TouchableOpacity>
       </View>

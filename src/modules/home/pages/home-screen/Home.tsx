@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -10,11 +10,60 @@ import {
 } from "react-native";
 import { styles } from "./HomeStyle";
 import CollegeCard from "../../../../components/college-card/CollegeCard";
+import { getTopColleges } from "../../../../db-query/dbQuery";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const categories = ["Diploma", "Degree", "MBA", "CA", "Engineering", "Medical"];
+const categories = ["Diploma", "Degree", "MBA", "Engineering", "Medical"];
 
 export default function Home({ navigation }) {
   const [menuVisible, setMenuVisible] = useState(false);
+  const [topColleges, setTopColleges] = useState([]);
+  const [recentColleges, setRecentColleges] = useState([]);
+
+  useEffect(() => {
+    fetchTopColleges();
+  }, []);
+
+  useEffect(() => {
+    const loadRecent = async () => {
+      try {
+        const data = await AsyncStorage.getItem("recentColleges");
+        if (data) {
+          setRecentColleges(JSON.parse(data));
+        }
+      } catch (e) {
+        console.log("Error loading recent:", e);
+      }
+    };
+
+    loadRecent();
+  }, []);
+
+  const fetchTopColleges = async () => {
+    const data = await getTopColleges();
+    setTopColleges(data);
+  };
+  console.log("topColleges : ", topColleges);
+
+  const handleViewDetails = async (college) => {
+    try {
+      const existing = await AsyncStorage.getItem("recentColleges");
+      let parsed = existing ? JSON.parse(existing) : [];
+
+      // remove duplicate
+      parsed = parsed.filter((item) => item.id !== college.id);
+
+      // add new at top (max 5)
+      const updated = [college, ...parsed].slice(0, 5);
+
+      await AsyncStorage.setItem("recentColleges", JSON.stringify(updated));
+
+      navigation.navigate("CollegeDetail", { data: college });
+    } catch (e) {
+      console.log("Error saving recent:", e);
+    }
+  };
+
   return (
     <>
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -63,10 +112,13 @@ export default function Home({ navigation }) {
           <Text style={styles.sectionTitle}>Top Colleges</Text>
 
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <CollegeCard />
-            <CollegeCard />
-            <CollegeCard />
-            <CollegeCard />
+            {topColleges?.map((item) => (
+              <CollegeCard
+                key={item?.id}
+                data={item}
+                handleViewDetails={handleViewDetails}
+              />
+            ))}
           </ScrollView>
         </View>
 
@@ -74,13 +126,11 @@ export default function Home({ navigation }) {
           <Text style={styles.sectionTitle}>Recently Viewed</Text>
 
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <CollegeCard />
-            <CollegeCard />
-            <CollegeCard />
-            <CollegeCard />
+            {recentColleges?.map((item) => (
+              <CollegeCard key={item.id} data={item} />
+            ))}
           </ScrollView>
         </View>
-
         {/* GUIDANCE */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Student Guidance</Text>
